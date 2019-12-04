@@ -35,7 +35,58 @@ def part1(one: list, two: list) -> int:
 
     return min(sum((abs(x), abs(y))) for x, y in set_1 & set_2)
 
+
 assert part1("R75,D30,R83,U83,L12,D49,R71,U7,L72".split(","), "U62,R66,U55,R34,D71,R55,D58,R83".split(",")) == 159
 assert part1("R98,U47,R26,D63,R33,U87,L62,D20,R33,U53,R51".split(","), "U98,R91,D20,R16,D67,R40,U7,R15,U6,R7".split(",")) == 135
 
 print(part1(instruction_1, instruction_2))
+
+
+def get_points_in_list(instr: list) -> list:
+    current_coord = (0, 0)
+    final = []
+    for i in instr:
+        if i[0] == "R":
+            a = current_coord[0] + 1
+            b = a + int(i[1:])
+            final += [(x, current_coord[1]) for x in range(a, b)]
+            current_coord = (b - 1, current_coord[1])
+        elif i[0] == "L":
+            a = current_coord[0] - 1
+            b = a - int(i[1:])
+            final += [(x, current_coord[1]) for x in range(a, b, -1)]
+            current_coord = (b + 1, current_coord[1])
+        elif i[0] == "U":
+            a = current_coord[1] + 1
+            b = a + int(i[1:])
+            final += [(current_coord[0], y) for y in range(a, b)]
+            current_coord = (current_coord[0], b - 1)
+        elif i[0] == "D":
+            a = current_coord[1] - 1
+            b = a - int(i[1:])
+            final += [(current_coord[0], y) for y in range(a, b, -1)]
+            current_coord = (current_coord[0], b + 1)
+        # print(current_coord)
+    return final
+
+
+def part2(one: list, two: list) -> int:
+    list_1 = get_points_in_list(one)
+    list_2 = get_points_in_list(two)
+    set_1 = get_points(one)
+    set_2 = get_points(two)
+    set_3 = set_1 & set_2
+    print(len(list_1))
+    print(len(list_2))
+
+    final = 99999999999
+    for value in set_3:
+        try:
+            final = min(list_1.index(value) + list_2.index(value), final)
+        except ValueError:
+            continue
+
+    return final + 2
+
+
+print(part2(instruction_1, instruction_2))
